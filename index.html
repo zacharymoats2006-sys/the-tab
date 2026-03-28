@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>THE TAB</title>
+    <style>
+        :root { 
+            --safe: #00ff88; --social: #00ccff; --buzzed: #FFCC00; 
+            --impaired: #ff9900; --danger: #DA0A13; --dark: #000; --card: #111; 
+        }
+        body { 
+            background: var(--dark); color: #fff; font-family: -apple-system, system-ui;
+            margin: 0; padding: env(safe-area-inset-top) 20px 100px 20px;
+        }
+        
+        /* Fuel Gauge */
+        .gauge-container { width: 100%; height: 6px; background: #222; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        #fuel-bar { height: 100%; width: 0%; transition: 0.5s cubic-bezier(0.1, 0.7, 1.0, 0.1); background: var(--safe); }
+
+        header { text-align: center; padding: 20px 0; }
+        .bac-display { font-size: 5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
+        
+        /* Search/Database Section */
+        .search-box { position: sticky; top: 10px; z-index: 100; margin-bottom: 20px; }
+        #drink-search { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #333; background: #1c1c1e; color: #fff; font-size: 1rem; box-sizing: border-box; }
+        .search-results { background: #1c1c1e; border-radius: 15px; margin-top: 5px; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #333; }
+        .search-item { padding: 15px; border-bottom: 1px solid #2c2c2e; display: flex; justify-content: space-between; align-items: center; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #161618; padding: 15px; border-radius: 18px; text-align: center; border: 1px solid #222; }
+        .stat-label { font-size: 0.65rem; color: #555; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 800; }
+        .stat-val { font-size: 1.2rem; font-weight: 700; }
+
+        /* History */
+        .history-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #111; font-size: 0.9rem; color: #888; }
+        .log-time { color: #444; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <div id="status-pill" style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--safe); letter-spacing: 1px;">System Active</div>
+        <div class="bac-display" id="bac">.000</div>
+        <div class="gauge-container"><div id="fuel-bar"></div></div>
+        <div id="analysis" style="font-size: 0.8rem; color: #666;">No alcohol detected in system.</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card"><span class="stat-label">Recovery</span><span class="stat-val" id="countdown">0h 00m</span></div>
+        <div class="stat-card"><span class="stat-label">Clear Time</span><span class="stat-val" id="cleartime">--:--</span></div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="drink-search" placeholder="Search Drink Database..." oninput="searchDrinks()">
+        <div id="results" class="search-results"></div>
+    </div>
+
+    <div id="history-list"></div>
+
+    <button onclick="if(confirm('Wipe session?')){localStorage.clear(); location.reload();}" style="margin-top:40px; width:100%; background:none; border:none; color:#222; font-size:0.7rem; letter-spacing:2px; padding: 20px;">PURGE ALL DATA</button>
+</div>
+
+<script>
+    // Expanded Database
+    const drinkDB = [
+        { name: "Coors Banquet", abv: 0.050, oz: 12 },
+        { name: "High Noon", abv: 0.045, oz: 12 },
+        { name: "White Claw", abv: 0.050, oz: 12 },
+        { name: "Bud Light", abv: 0.042, oz: 12 },
+        { name: "Natty Light", abv: 0.042, oz: 12 },
+        { name: "Voodoo Ranger IPA", abv: 0.075, oz: 12 },
+        { name: "Guinness", abv: 0.042, oz: 12 },
+        { name: "Standard Shot", abv: 0.400, oz: 1.5 },
+        { name: "Tequila Shot", abv: 0.400, oz: 1.5 },
+        { name: "Espresso Martini", abv: 0.200, oz: 4 },
+        { name: "Wine (Large)", abv: 0.130, oz: 6 }
+    ];
+
+    let session = JSON.parse(localStorage.getItem('tab_v3')) || [];
+    let weight = 180; let sex = 0.68;
+
+    function searchDrinks() {
+        const query = document.getElementById('drink-search').value.toLowerCase();
+        const resDiv = document.getElementById('results');
+        if(!query) { resDiv.style.display = 'none'; return; }
+        
+        const filtered = drinkDB.filter(d => d.name.toLowerCase().includes(query));
+        resDiv.innerHTML = filtered.map(d => `
+            <div class="search-item" onclick="add('${d.name}', ${d.oz}, ${d.abv})">
+                <span>${d.name} <small style="color:#555">(${Math.round(d.abv*100)}%)</small></span>
+                <span style="color:var(--social); font-weight:bold;">+</span>
+            </div>
+        `).join('');
+        resDiv.style.display = 'block';
+    }
+
+    function add(name, oz, abv) {
+        session.push({ name, oz, abv, time: Date.now() });
+        localStorage.setItem('tab_v3', JSON.stringify(session));
+        document.getElementById('drink-search').value = "";
+        document.getElementById('results').style.display = 'none';
+        update();
+    }
+
+    function update() {
+        const now = Date.now();
+        let currentBac = 0;
+
+        session.forEach(d => {
+            const hrs = (now - d.time) / 3600000;
+            const pureOz = d.oz * d.abv;
+            let drinkBac = (pureOz * 5.14 / (weight * sex)) - (0.015 * hrs);
+            if (drinkBac > 0) currentBac += drinkBac;
+        });
+
+        // UI Updates
+        const bacVal = currentBac.toFixed(3).replace('0.', '.');
+        document.getElementById('bac').innerText = bacVal;
+
+        // Fuel Gauge (% of legal limit 0.08)
+        const fuelPerc = Math.min((currentBac / 0.08) * 100, 100);
+        const fuelBar = document.getElementById('fuel-bar');
+        fuelBar.style.width = fuelPerc + "%";
+
+        let color = "var(--safe)";
+        let desc = "Systems nominal.";
+        if (currentBac >= 0.08) { color = "var(--danger)"; desc = "LEGAL LIMIT EXCEEDED."; }
+        else if (currentBac > 0.04) { color = "var(--buzzed)"; desc = "Impairment detected."; }
+        else if (currentBac > 0) { color = "var(--social)"; desc = "Optimal social level."; }
+        
+        fuelBar.style.background = color;
+        document.getElementById('bac').style.color = color;
+        document.getElementById('status-pill').style.color = color;
+        document.getElementById('analysis').innerText = desc;
+
+        // Recovery Timers
+        const hrsToSober = currentBac / 0.015;
+        const h = Math.floor(hrsToSober);
+        const m = Math.floor((hrsToSober % 1) * 60);
+        document.getElementById('countdown').innerText = `${h}h ${m}m`;
+
+        if (currentBac > 0) {
+            const sTime = new Date(now + hrsToSober * 3600000);
+            document.getElementById('cleartime').innerText = sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+        }
+
+        // History
+        document.getElementById('history-list').innerHTML = session.map(d => {
+            const t = new Date(d.time);
+            return `<div class="history-item"><span>${d.name}</span><span class="log-time">${t.getHours()}:${(t.getMinutes()<10?'0':'')+t.getMinutes()}</span></div>`;
+        }).reverse().join('');
+    }
+
+    setInterval(update, 30000);
+    update();
+</script>
+</body>
+</html>
