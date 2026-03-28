@@ -16,9 +16,8 @@
             margin: 0; padding: env(safe-area-inset-top) 20px 100px 20px;
         }
         header { text-align: center; padding: 10px 0; }
-        .bac-display { font-size: 6rem; font-weight: 900; line-height: 1; letter-spacing: -4px; margin: 5px 0; transition: color 0.4s; }
+        .bac-display { font-size: 6rem; font-weight: 900; line-height: 1; letter-spacing: -4px; margin: 5px 0; }
         
-        /* Stages Display */
         #stage-pill { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; margin-bottom: 10px; }
         #analysis { font-size: 0.85rem; color: #888; margin: 5px 0 15px; min-height: 3em; line-height: 1.4; }
 
@@ -28,20 +27,19 @@
         input, select { background: #1c1c1e; border: none; color: #fff; padding: 10px; border-radius: 10px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
 
         .gauge-container { width: 100%; height: 4px; background: #222; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #fuel-bar { height: 100%; width: 0%; transition: 1s cubic-bezier(0.075, 0.82, 0.165, 1); background: var(--safe); }
+        #fuel-bar { height: 100%; width: 0%; transition: 1s ease; background: var(--safe); }
 
-        /* Projection Box */
         .projection-box { background: #111; border: 1px dashed #333; border-radius: 15px; padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .proj-label { font-size: 0.65rem; color: #444; text-transform: uppercase; font-weight: 700; }
-        .proj-val { font-size: 0.9rem; font-weight: 700; color: #666; }
 
-        .search-box { position: sticky; top: 10px; z-index: 100; margin-bottom: 20px; }
+        .search-box { position: sticky; top: 10px; z-index: 100; margin-bottom: 15px; }
         #drink-search { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid #333; background: #1c1c1e; color: #fff; font-size: 1rem; box-sizing: border-box; }
-        .search-results { background: #1c1c1e; border-radius: 18px; margin-top: 8px; max-height: 250px; overflow-y: auto; display: none; border: 1px solid #333; }
+        .search-results { background: #1c1c1e; border-radius: 18px; margin-top: 8px; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #333; }
         .search-item { padding: 16px; border-bottom: 1px solid #2c2c2e; display: flex; justify-content: space-between; }
 
-        .recovery-stats { display: flex; justify-content: space-around; background: #111; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #222; }
-        .stat-val { font-size: 1.1rem; font-weight: 700; display: block; margin-top: 5px; }
+        .water-btn { width: 100%; background: #004466; color: #00ccff; border: 1px solid #006699; padding: 12px; border-radius: 15px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 20px; cursor: pointer; }
+        
+        .history-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #111; font-size: 0.85rem; color: #555; }
     </style>
 </head>
 <body>
@@ -51,31 +49,30 @@
         <div id="stage-pill">Sober</div>
         <div class="bac-display" id="bac">.000</div>
         <div class="gauge-container"><div id="fuel-bar"></div></div>
-        <div id="analysis">Diagnostic standing by...</div>
+        <div id="analysis">Diagnostics Active</div>
     </header>
 
     <div class="projection-box">
         <span class="proj-label">T+1 Hour Projection</span>
-        <span class="proj-val" id="projection">BAC .000</span>
+        <span style="font-weight:700; color:#666;" id="projection">.000</span>
     </div>
 
     <div class="bio-grid">
         <div class="field"><label>Age</label><input type="number" id="age" value="21" onchange="saveBio()"></div>
-        <div class="field"><label>Weight</label><input type="number" id="weight" value="175" onchange="saveBio()"></div>
+        <div class="field"><label>Weight (lbs)</label><input type="number" id="weight" min="100" value="175" onchange="saveBio()"></div>
         <div class="field">
             <label>Height</label>
             <select id="height" onchange="saveBio()">
-                <option value="64">5'4"</option><option value="68">5'8"</option>
-                <option value="70" selected>5'10"</option><option value="72">6'0"</option>
-                <option value="76">6'4"</option>
+                <option value="60" selected>5'0" (Min)</option>
+                <option value="62">5'2"</option><option value="64">5'4"</option>
+                <option value="66">5'6"</option><option value="68">5'8"</option>
+                <option value="70">5'10"</option><option value="72">6'0"</option>
+                <option value="74">6'2"</option><option value="76">6'4"</option>
             </select>
         </div>
     </div>
 
-    <div class="recovery-stats">
-        <div class="stat-block"><label style="font-size:0.6rem; color:#555; text-transform:uppercase;">Clear In</label><div class="stat-val" id="countdown">0h 0m</div></div>
-        <div class="stat-block"><label style="font-size:0.6rem; color:#555; text-transform:uppercase;">Morning Ready</label><div class="stat-val" id="cleartime">--:--</div></div>
-    </div>
+    <button class="water-btn" onclick="add('Water (16oz)', 16, 0)">+ Log Hydration (16oz)</button>
 
     <div class="search-box">
         <input type="text" id="drink-search" placeholder="Search Brand..." oninput="searchDrinks()">
@@ -83,31 +80,33 @@
     </div>
 
     <div id="history-list"></div>
-    <button onclick="if(confirm('Wipe session?')){localStorage.clear(); location.reload();}" style="margin:40px 0; width:100%; background:none; border:none; color:#222; font-size:0.6rem; letter-spacing:2px;">PURGE SYSTEM</button>
+    <button onclick="localStorage.clear(); location.reload();" style="margin-top:40px; width:100%; background:none; border:none; color:#222; font-size:0.6rem; letter-spacing:2px;">PURGE SYSTEM</button>
 </div>
 
 <script>
     const drinkDB = [
         { name: "Coors Banquet", abv: 0.05, oz: 12 }, { name: "High Noon", abv: 0.045, oz: 12 },
         { name: "White Claw", abv: 0.05, oz: 12 }, { name: "Bud Light", abv: 0.042, oz: 12 },
-        { name: "IPA (Strong)", abv: 0.075, oz: 12 }, { name: "Standard Shot", abv: 0.40, oz: 1.5 },
-        { name: "Mixed Drink", abv: 0.15, oz: 6 }
+        { name: "Natty Light", abv: 0.042, oz: 12 }, { name: "Voodoo Ranger", abv: 0.075, oz: 12 },
+        { name: "Standard Shot", abv: 0.40, oz: 1.5 }, { name: "Mixed Drink", abv: 0.15, oz: 6 }
     ];
 
     let session = JSON.parse(localStorage.getItem('tab_v5_session')) || [];
     let bio = JSON.parse(localStorage.getItem('tab_v5_bio')) || { age: 21, weight: 175, height: 70, sex: 0.68 };
 
+    // Set UI from bio
     document.getElementById('age').value = bio.age;
-    document.getElementById('weight').value = bio.weight;
-    document.getElementById('height').value = bio.height;
+    document.getElementById('weight').value = Math.max(100, bio.weight);
+    document.getElementById('height').value = Math.max(60, bio.height);
 
     function saveBio() {
         bio = {
             age: parseInt(document.getElementById('age').value),
-            weight: parseInt(document.getElementById('weight').value),
-            height: parseInt(document.getElementById('height').value),
-            sex: 0.68 // Default to 0.68 for calculation
+            weight: Math.max(100, parseInt(document.getElementById('weight').value)),
+            height: Math.max(60, parseInt(document.getElementById('height').value)),
+            sex: 0.68
         };
+        document.getElementById('weight').value = bio.weight; // Snap to 100 if lower
         localStorage.setItem('tab_v5_bio', JSON.stringify(bio));
         update();
     }
@@ -136,58 +135,46 @@
 
     function update() {
         const now = Date.now();
-        let currentBac = 0;
-        let futureBac = 0;
-        const metabolism = 0.015;
+        let bac = 0; let f_bac = 0;
+        const rate = 0.015;
 
         session.forEach(d => {
+            if(d.abv === 0) return; // Ignore water for BAC math
             const hrs = (now - d.time) / 3600000;
-            const pureOz = d.oz * d.abv;
-            let drinkBac = (pureOz * 5.14 / (bio.weight * bio.sex)) - (metabolism * hrs);
-            if (drinkBac > 0) currentBac += drinkBac;
-
-            // Future projection (in 1 hour)
-            let futBac = (pureOz * 5.14 / (bio.weight * bio.sex)) - (metabolism * (hrs + 1));
-            if (futBac > 0) futureBac += futBac;
+            const pure = d.oz * d.abv;
+            let current = (pure * 5.14 / (bio.weight * bio.sex)) - (rate * hrs);
+            let future = (pure * 5.14 / (bio.weight * bio.sex)) - (rate * (hrs + 1));
+            if (current > 0) bac += current;
+            if (future > 0) f_bac += future;
         });
 
-        document.getElementById('bac').innerText = currentBac.toFixed(3).replace('0.', '.');
-        document.getElementById('projection').innerText = `BAC ${futureBac.toFixed(3).replace('0.', '.')}`;
+        document.getElementById('bac').innerText = bac.toFixed(3).replace('0.', '.');
+        document.getElementById('projection').innerText = `.${f_bac.toFixed(3).replace('0.', '.')}`;
         
-        const fuelPerc = Math.min((currentBac / 0.08) * 100, 100);
-        document.getElementById('fuel-bar').style.width = fuelPerc + "%";
+        const fuel = Math.min((bac / 0.08) * 100, 100);
+        document.getElementById('fuel-bar').style.width = fuel + "%";
 
-        // STAGES OF INTOXICATION
-        let s = { name: "Sober", col: "var(--safe)", desc: "Normal behavior. No impairment detected." };
-        if (currentBac >= 0.40) s = { name: "Lethal", col: "var(--critical)", desc: "CRITICAL: High risk of death. Emergency medical attention required." };
-        else if (currentBac >= 0.25) s = { name: "Stupor", col: "var(--critical)", desc: "Loss of motor function. Risk of asphyxiation. Do not leave alone." };
-        else if (currentBac >= 0.18) s = { name: "Confusion", col: "var(--danger)", desc: "Significant disorientation. Blackouts likely. Emotional outbursts." };
-        else if (currentBac >= 0.09) s = { name: "Excitement", col: "var(--impaired)", desc: "Loss of judgment. Slurred speech. Peripheral vision impairment." };
-        else if (currentBac >= 0.03) s = { name: "Euphoria", col: "var(--social)", desc: "Increased confidence and talkativeness. Lowered inhibitions." };
-        else if (currentBac > 0.01) s = { name: "Subclinical", col: "var(--safe)", desc: "Behavior nearly normal. Subtle mood shifts." };
+        let s = { name: "Sober", col: "var(--safe)", desc: "Clear for tomorrow's classes." };
+        if (bac >= 0.25) s = { name: "Stupor", col: "var(--critical)", desc: "Loss of motor function. Immediate rest required." };
+        else if (bac >= 0.15) s = { name: "Confusion", col: "var(--danger)", desc: "Dizzy, emotional, slurred speech." };
+        else if (bac >= 0.08) s = { name: "Excitement", col: "var(--impaired)", desc: "Over the legal limit. Poor judgment." };
+        else if (bac >= 0.03) s = { name: "Euphoria", col: "var(--social)", desc: "Confidence boost. Lowered inhibitions." };
 
-        const pill = document.getElementById('stage-pill');
-        pill.innerText = s.name; pill.style.color = s.col; pill.style.borderColor = s.col;
+        document.getElementById('stage-pill').innerText = s.name;
+        document.getElementById('stage-pill').style.color = s.col;
+        document.getElementById('stage-pill').style.borderColor = s.col;
         document.getElementById('bac').style.color = s.col;
         document.getElementById('fuel-bar').style.background = s.col;
         document.getElementById('analysis').innerText = s.desc;
 
-        const hrsToSober = currentBac / metabolism;
-        document.getElementById('countdown').innerText = `${Math.floor(hrsToSober)}h ${Math.floor((hrsToSober % 1) * 60)}m`;
-
-        if (currentBac > 0) {
-            const sTime = new Date(now + hrsToSober * 3600000);
-            document.getElementById('cleartime').innerText = sTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-
         document.getElementById('history-list').innerHTML = session.map(d => {
             const t = new Date(d.time);
-            return `<div class="history-item"><span>${d.name}</span><span style="color:#333">${t.getHours()}:${(t.getMinutes()<10?'0':'')+t.getMinutes()}</span></div>`;
-        }).reverse().slice(0, 5).join('');
+            const color = d.abv === 0 ? "var(--social)" : "#333";
+            return `<div class="history-item"><span>${d.name}</span><span style="color:${color}">${t.getHours()}:${(t.getMinutes()<10?'0':'')+t.getMinutes()}</span></div>`;
+        }).reverse().slice(0, 10).join('');
     }
 
-    update();
-    setInterval(update, 15000);
+    update(); setInterval(update, 15000);
 </script>
 </body>
 </html>
