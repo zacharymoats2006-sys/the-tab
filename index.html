@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>THE TAB v18.0</title>
+    <title>THE TAB v18.1</title>
     <style>
         :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
         body { background: var(--dark); color: #fff; font-family: -apple-system, system-ui; margin: 0; padding: env(safe-area-inset-top) 20px 140px 20px; overflow-x: hidden; }
@@ -19,20 +19,21 @@
         .hud-val { font-size: 1.5rem; font-weight: 900; display: block; margin-top: 5px; }
 
         .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .cat-btn { background: #111; border: 1px solid #222; color: #777; padding: 18px; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; }
+        .cat-btn { background: #111; border: 1px solid #222; color: #777; padding: 18px; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; cursor: pointer; }
         .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
 
         .inventory-list { background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; max-height: 400px; overflow-y: auto; display: none; margin-bottom: 20px; }
         .drink-row { padding: 15px 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
+        .drink-info b { display: block; font-size: 0.9rem; }
+        .drink-info span { font-size: 0.65rem; color: #444; }
         .add-btn { background: #fff; color: #000; border: none; padding: 12px 18px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; }
         
         .custom-form { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; display: none; margin-bottom: 20px; }
         .custom-form input, .custom-form select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #222; background: #000; color: #fff; font-size: 1rem; }
         .save-custom-btn { background: var(--social); color: #000; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: 800; text-transform: uppercase; }
 
-        /* FIXED FOOTER CONTROLS */
         .controls { position: fixed; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 10px; z-index: 9999; }
-        .ctrl-btn { flex: 1; padding: 18px; border-radius: 15px; border: 1px solid #222; background: #0a0a0a; color: #fff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; }
+        .ctrl-btn { flex: 1; padding: 18px; border-radius: 15px; border: 1px solid #222; background: #0a0a0a; color: #fff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -41,8 +42,9 @@
 <div class="bac-display" id="bac">.0000</div>
 
 <div class="hud-counters">
-    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="s-count" style="color: var(--impaired);">0</span></div>
-    <div class="hud-item"><span class="hud-label">Cans/Other</span><span class="hud-val" id="c-count" style="color: var(--social);">0</span></div>
+    <div class="hud-item"><span class="hud-label">Shots</span><span id="s-count" class="hud-val" style="color: var(--impaired);">0</span></div>
+    <div class="hud-item"><span class="hud-label">Cans/Other</span><span id="c-count" class="hud-val" style="color: var(--social);">0</span></div>
+    <div class="hud-item"><span class="hud-label">Last Drink</span><span id="last-timer" class="hud-val" style="color: #fff;">--</span></div>
 </div>
 
 <div class="cat-grid">
@@ -138,16 +140,29 @@
 
     function update() {
         const now = Date.now();
-        let curBac = 0, shots = 0, cans = 0;
+        let curBac = 0, shots = 0, cans = 0, lastT = null;
+        
         logs.forEach(d => {
             const hrs = (now - d.t) / 3600000;
             const drinkBac = (d.v * d.a * 5.14 / (weight * r)) - (0.015 * hrs);
             if (drinkBac > 0) curBac += drinkBac;
             if (d.s) shots++; else if (d.a > 0) cans++;
+            if (!lastT || d.t > lastT) lastT = d.t;
         });
+
         document.getElementById('bac').innerText = curBac.toFixed(4).substring(1);
         document.getElementById('s-count').innerText = shots;
         document.getElementById('c-count').innerText = cans;
+        
+        // Timer Logic
+        const timerEl = document.getElementById('last-timer');
+        if (lastT) {
+            const diff = Math.floor((now - lastT) / 60000);
+            timerEl.innerText = diff + "m ago";
+        } else {
+            timerEl.innerText = "--";
+        }
+
         let col = "var(--safe)", st = "Sober";
         if(curBac > .02) { col="var(--social)"; st="Euphoria"; }
         if(curBac > .08) { col="var(--impaired)"; st="Excitement"; }
@@ -157,7 +172,8 @@
         document.getElementById('bac').style.color = col;
     }
 
-    setInterval(update, 2000); update();
+    setInterval(update, 10000); // Update every 10s to save battery but keep timer fresh
+    update();
 </script>
 </body>
 </html>
