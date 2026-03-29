@@ -33,4 +33,113 @@
         .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
 
         .inventory-list { 
-            background: #0a0a0a; border-radius: 20px; border: 1px solid
+            background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; 
+            max-height: 400px; overflow-y: auto; display: none; margin-bottom: 30px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .drink-row { padding: 18px 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
+        .drink-info b { display: block; font-size: 0.95rem; }
+        .drink-info span { font-size: 0.65rem; color: #555; }
+        
+        .add-btn { 
+            background: #fff; color: #000; border: none; padding: 12px 20px; border-radius: 10px; 
+            font-size: 0.8rem; font-weight: 900; cursor: pointer;
+        }
+
+        .controls { position: fixed; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
+        .ctrl-btn { flex: 1; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: #fff; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="bac-container">
+    <div id="stage-pill">Sober</div>
+    <p class="bac-display" id="bac">.0000</p>
+</div>
+
+<div class="hud-counters">
+    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="s-count" style="color:var(--impaired)">0</span></div>
+    <div class="hud-item"><span class="hud-label">Cans/Other</span><span class="hud-val" id="c-count" style="color:var(--social)">0</span></div>
+</div>
+
+<div class="cat-grid">
+    <button class="cat-btn" onclick="showCat('beer', this)">Beer</button>
+    <button class="cat-btn" onclick="showCat('seltz', this)">Seltz/Tea</button>
+    <button class="cat-btn" onclick="showCat('mixed', this)">Mixed</button>
+    <button class="cat-btn" onclick="showCat('liquor', this)">Liquor</button>
+    <button class="cat-btn" onclick="showCat('wine', this)">Wine</button>
+    <button class="cat-btn" onclick="showCat('cider', this)">Cider</button>
+</div>
+
+<div id="inv" class="inventory-list"></div>
+
+<div class="controls">
+    <button class="ctrl-btn" onclick="undo()">Undo Last</button>
+    <button class="ctrl-btn" style="color:var(--danger)" onclick="resetTab()">Reset All</button>
+</div>
+
+<script>
+    const db = {
+        beer: [{n:"Michelob Ultra",a:0.042,v:12},{n:"Busch Light",a:0.041,v:12},{n:"Coors Banquet",a:0.05,v:12},{n:"Voodoo Ranger",a:0.09,v:12}],
+        seltz: [{n:"Surfside Tea",a:0.045,v:12},{n:"High Noon",a:0.045,v:12},{n:"BeatBox",a:0.111,v:16.9},{n:"White Claw Surge",a:0.08,v:12}],
+        mixed: [{n:"Margarita",a:0.15,v:8},{n:"Long Island",a:0.22,v:12},{n:"Vodka Soda",a:0.1,v:10}],
+        liquor: [{n:"Tequila Shot",a:0.4,v:1.5,s:true},{n:"Vodka Shot",a:0.4,v:1.5,s:true},{n:"Fireball",a:0.33,v:1.5,s:true}],
+        wine: [{n:"Red Wine",a:0.13,v:5},{n:"White Wine",a:0.12,v:5}],
+        cider: [{n:"Angry Orchard",a:0.05,v:12},{n:"Downeast",a:0.051,v:12}]
+    };
+
+    let logs = JSON.parse(localStorage.getItem('jarvis_tab_v18')) || [];
+    let weight = 175;
+    let r = 0.68;
+
+    function showCat(cat, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const inv = document.getElementById('inv');
+        inv.innerHTML = db[cat].map(d => `
+            <div class="drink-row">
+                <div class="drink-info"><b>${d.n}</b><span>${(d.a*100).toFixed(1)}% | ${d.v}oz</span></div>
+                <button class="add-btn" onclick="add('${d.n}',${d.a},${d.v},${d.s?true:false})">ADD</button>
+            </div>
+        `).join('');
+        inv.style.display = 'block';
+    }
+
+    function add(n, a, v, s) {
+        logs.push({ n, a, v, s, t: Date.now() });
+        save();
+    }
+
+    function undo() { logs.pop(); save(); }
+    function resetTab() { if(confirm("Reset the night?")) { logs = []; save(); } }
+    function save() { localStorage.setItem('jarvis_tab_v18', JSON.stringify(logs)); update(); }
+
+    function update() {
+        const now = Date.now();
+        let curBac = 0, shots = 0, cans = 0;
+        
+        logs.forEach(d => {
+            const hrs = (now - d.t) / 3600000;
+            const drinkBac = (d.v * d.a * 5.14 / (weight * r)) - (0.015 * hrs);
+            if (drinkBac > 0) curBac += drinkBac;
+            if (d.s) shots++; else if (d.a > 0) cans++;
+        });
+
+        document.getElementById('bac').innerText = curBac.toFixed(4).substring(1);
+        document.getElementById('s-count').innerText = shots;
+        document.getElementById('c-count').innerText = cans;
+
+        let col = "var(--safe)", st = "Sober";
+        if(curBac > .02) { col="var(--social)"; st="Euphoria"; }
+        if(curBac > .08) { col="var(--impaired)"; st="Excitement"; }
+        if(curBac > .18) { col="var(--danger)"; st="Confusion"; }
+        
+        const pill = document.getElementById('stage-pill');
+        pill.innerText = st; pill.style.color = col; pill.style.borderColor = col;
+        document.getElementById('bac').style.color = col;
+    }
+
+    setInterval(update, 2000); update();
+</script>
+</body>
+</html>
