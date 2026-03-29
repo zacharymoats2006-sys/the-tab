@@ -1,202 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>THE TAB v18.2</title>
-    
-    
     <style>
-        :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
-        body { background: var(--dark); color: #fff; font-family: -apple-system, system-ui; margin: 0; padding: env(safe-area-inset-top) 20px 140px 20px; overflow-x: hidden; }
-        
-        .bac-display { font-size: 7.5rem; font-weight: 900; text-align: center; letter-spacing: -6px; margin: 10px 0; pointer-events: none; }
-        #stage-pill { display: block; width: fit-content; margin: 0 auto 10px; padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; }
-        
-        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 20px; }
-        .hud-item { text-align: center; flex: 1; }
-        .hud-label { font-size: 0.55rem; color: #444; text-transform: uppercase; font-weight: 800; }
-        .hud-val { font-size: 1.5rem; font-weight: 900; display: block; margin-top: 5px; }
+        :root {
+            --bg-color: #000;
+            --card-bg: #1c1c1e;
+            --accent-blue: #0a84ff;
+            --text-main: #ffffff;
+            --text-dim: #8e8e93;
+            --border: #333;
+        }
 
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .cat-btn { background: #111; border: 1px solid #222; color: #777; padding: 18px; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; cursor: pointer; }
-        .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation;
+        }
 
-        .inventory-list { background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; max-height: 400px; overflow-y: auto; display: none; margin-bottom: 20px; }
-        .drink-row { padding: 15px 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
-        .drink-info b { display: block; font-size: 0.9rem; }
-        .drink-info span { font-size: 0.65rem; color: #444; }
-        .add-btn { background: #fff; color: #000; border: none; padding: 12px 18px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; }
-        
-        .custom-form { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; display: none; margin-bottom: 20px; }
-        .custom-form input, .custom-form select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #222; background: #000; color: #fff; font-size: 1rem; }
-        .save-custom-btn { background: var(--social); color: #000; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: 800; text-transform: uppercase; }
+        .dashboard, .settings-panel {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
 
-        .controls { position: fixed; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 10px; z-index: 9999; }
-        .ctrl-btn { flex: 1; padding: 18px; border-radius: 15px; border: 1px solid #222; background: #0a0a0a; color: #fff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; }
+        .bac-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin: 10px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .input-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            background: #2c2c2e;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        button:active { background: #2c2c2e; transform: scale(0.98); }
+        .beer-btn { border-color: #ffcc00; }
+        .seltz-btn { border-color: #5856d6; }
+        .liquor-btn { border-color: #ff3b30; }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div id="stage-pill">Sober</div>
-<div class="bac-display" id="bac">.0000</div>
-
-<div class="hud-counters">
-    <div class="hud-item"><span class="hud-label">Shots</span><span id="s-count" class="hud-val" style="color: var(--impaired);">0</span></div>
-    <div class="hud-item"><span class="hud-label">Cans/Other</span><span id="c-count" class="hud-val" style="color: var(--social);">0</span></div>
-    <div class="hud-item"><span class="hud-label">Last Drink</span><span id="last-timer" class="hud-val" style="color: #fff;">--</span></div>
-</div>
-
-<div class="cat-grid">
-    <button class="cat-btn" onclick="showCat('beer', this)">Beer</button>
-    <button class="cat-btn" onclick="showCat('seltz', this)">Seltz/Tea</button>
-    <button class="cat-btn" onclick="showCat('mixed', this)">Mixed</button>
-    <button class="cat-btn" onclick="showCat('liquor', this)">Liquor</button>
-    <button class="cat-btn" onclick="showCat('custom', this)" style="border-color: var(--social); color: var(--social); grid-column: span 2;">+ Custom Drinks</button>
-</div>
-
-<div id="custom-ui" class="custom-form">
-    <input type="text" id="cust-name" placeholder="Drink Name">
-    <input type="number" id="cust-abv" placeholder="ABV % (e.g. 5.0)" step="0.1">
-    <input type="number" id="cust-oz" placeholder="Ounces (e.g. 12)">
-    <select id="cust-type">
-        <option value="false">Can/Bottle/Mixed</option>
-        <option value="true">Shot</option>
-    </select>
-    <button class="save-custom-btn" onclick="saveNewDrink()">Save to Menu & Add</button>
-</div>
-
-<div id="inv" class="inventory-list"></div>
-
-<div class="controls">
-    <button class="ctrl-btn" onclick="undo()">Undo Last</button>
-    <button class="ctrl-btn" style="color: var(--danger); border-color: var(--danger);" onclick="resetSession()">Reset Night</button>
-</div>
-
-<script>
-    // EXPANDED HIGH-PROFILE DATABASE
-    const staticDB = {
-        beer: [
-            {n:"Bud Light",a:0.042,v:12}, {n:"Modelo Especial",a:0.044,v:12}, 
-            {n:"Yuengling",a:0.045,v:12}, {n:"Miller Lite",a:0.042,v:12}, 
-            {n:"Coors Light",a:0.042,v:12}, {n:"Michelob Ultra",a:0.042,v:12}, 
-            {n:"Busch Light",a:0.041,v:12}, {n:"Corona Extra",a:0.046,v:12},
-            {n:"Voodoo Ranger",a:0.09,v:12}
-        ],
-        seltz: [
-            {n:"High Noon",a:0.045,v:12}, {n:"White Claw",a:0.05,v:12}, 
-            {n:"Truly",a:0.05,v:12}, {n:"Twisted Tea",a:0.05,v:12}, 
-            {n:"Surfside Tea",a:0.045,v:12}, {n:"BeatBox",a:0.111,v:16.9}, 
-            {n:"Four Loko",a:0.14,v:24}
-        ],
-        mixed: [
-            {n:"Monaco Cocktail",a:0.09,v:12}, {n:"Cutwater Marg",a:0.125,v:12}, 
-            {n:"Long Drink",a:0.055,v:12}, {n:"Vodka Soda",a:0.09,v:10}, 
-            {n:"Margarita",a:0.15,v:8}, {n:"Long Island",a:0.22,v:12}
-        ],
-        liquor: [
-            {n:"Tequila Shot",a:0.40,v:1.5,s:true}, {n:"Vodka Shot",a:0.40,v:1.5,s:true}, 
-            {n:"Whiskey Shot",a:0.40,v:1.5,s:true}, {n:"Fireball",a:0.33,v:1.5,s:true}, 
-            {n:"Pink Whitney",a:0.30,v:1.5,s:true}
-        ]
-    };
-
-    let logs = JSON.parse(localStorage.getItem('tab_v18_logs')) || [];
-    let customDrinks = JSON.parse(localStorage.getItem('tab_custom_db')) || [];
-    let weight = 175; let r = 0.68;
-
-    function showCat(cat, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const inv = document.getElementById('inv');
-        const customUI = document.getElementById('custom-ui');
-        customUI.style.display = (cat === 'custom') ? 'block' : 'none';
+    <div class="dashboard" id="mainUI">
+        <div style="font-size: 0.8rem; color: var(--text-dim);">ESTIMATED BAC</div>
+        <div class="bac-display" id="bac">0.000</div>
         
-        let list = (cat === 'custom') ? customDrinks : staticDB[cat];
-        if (list && list.length > 0) {
-            inv.innerHTML = list.map(d => `
-                <div class="drink-row">
-                    <div class="drink-info"><b>${d.n}</b><span>${(d.a*100).toFixed(1)}% | ${d.v}oz</span></div>
-                    <button class="add-btn" onclick="add('${d.n}',${d.a},${d.v},${d.s?true:false})">ADD</button>
-                </div>
-            `).join('');
-            inv.style.display = 'block';
-        } else { inv.style.display = 'none'; }
-    }
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div style="font-size: 0.7rem;">TOTAL DRINKS</div>
+                <div id="total-count" style="font-size: 1.2rem;">0</div>
+            </div>
+            <div class="stat-box">
+                <div style="font-size: 0.7rem;">TIME SINCE LAST</div>
+                <div id="timer" style="font-family: monospace;">00:00:00</div>
+            </div>
+        </div>
+        <button onclick="toggleSettings()" style="padding: 8px 15px; font-size: 0.7rem; border-radius: 20px;">Edit Profile</button>
+    </div>
 
-    function saveNewDrink() {
-        const n = document.getElementById('cust-name').value;
-        const a = parseFloat(document.getElementById('cust-abv').value) / 100;
-        const v = parseFloat(document.getElementById('cust-oz').value);
-        const s = document.getElementById('cust-type').value === "true";
-        if (!n || isNaN(a) || isNaN(v)) return;
-        customDrinks.push({ n, a, v, s });
-        localStorage.setItem('tab_custom_db', JSON.stringify(customDrinks));
-        add(n, a, v, s);
-        document.getElementById('cust-name').value = '';
-        document.getElementById('cust-abv').value = '';
-        document.getElementById('cust-oz').value = '';
-        showCat('custom', document.querySelector('.cat-btn[onclick*="custom"]'));
-    }
+    <div class="settings-panel hidden" id="settingsUI">
+        <h3>User Profile</h3>
+        <div class="input-group">
+            <label>Weight (lbs)</label>
+            <input type="number" id="userWeight" value="180" onchange="saveProfile()">
+        </div>
+        <div class="input-group">
+            <label>Height: <span id="heightLabel">5'10"</span></label>
+            <input type="range" id="userHeight" min="48" max="84" value="70" oninput="updateHeightLabel()" onchange="saveProfile()">
+        </div>
+        <div class="input-group">
+            <label>Age</label>
+            <input type="number" id="userAge" value="21" onchange="saveProfile()">
+        </div>
+        <button onclick="toggleSettings()" style="width: 100%; background: var(--accent-blue);">Save & Close</button>
+    </div>
 
-    function add(n, a, v, s) {
-        logs.push({ n, a, v, s, t: Date.now() });
-        save();
-    }
+    <div class="btn-grid" id="controls">
+        <button class="beer-btn" onclick="addDrink(0.042)">BEER<br><small>12oz 4.2%</small></button>
+        <button class="seltz-btn" onclick="addDrink(0.05)">SELTZ/TEA<br><small>12oz 5%</small></button>
+        <button class="liquor-btn" onclick="addDrink(0.40, 1.5)">SHOT<br><small>1.5oz 40%</small></button>
+        <button style="border-color: #34c759;" onclick="alert('Custom added')">+ CUSTOM</button>
+        <button style="grid-column: span 2; margin-top: 10px; color: #ff3b30;" onclick="resetTab()">RESET SESSION</button>
+    </div>
 
-    function undo() { logs.pop(); save(); }
-    
-    function resetSession() {
-        if(confirm("Wipe current BAC? Your custom drinks will stay saved!")) {
-            logs = [];
-            save();
-        }
-    }
+    <script>
+        // Load Profile or Defaults
+        let profile = JSON.parse(localStorage.getItem('tabProfile')) || {
+            weight: 180,
+            heightInches: 70,
+            age: 21
+        };
 
-    function save() {
-        localStorage.setItem('tab_v18_logs', JSON.stringify(logs));
-        update();
-    }
+        let sessionData = JSON.parse(localStorage.getItem('tabSession')) || {
+            startTime: null,
+            lastDrinkTime: null,
+            totalAlcoholOz: 0,
+            drinkCount: 0
+        };
 
-    function update() {
-        const now = Date.now();
-        let curBac = 0, shots = 0, cans = 0, lastT = null;
-        
-        logs.forEach(d => {
-            const hrs = (now - d.t) / 3600000;
-            const drinkBac = (d.v * d.a * 5.14 / (weight * r)) - (0.015 * hrs);
-            if (drinkBac > 0) curBac += drinkBac;
-            if (d.s) shots++; else if (d.a > 0) cans++;
-            if (!lastT || d.t > lastT) lastT = d.t;
-        });
-
-        document.getElementById('bac').innerText = curBac.toFixed(4).substring(1);
-        document.getElementById('s-count').innerText = shots;
-        document.getElementById('c-count').innerText = cans;
-        
-        // Timer Logic
-        const timerEl = document.getElementById('last-timer');
-        if (lastT) {
-            const diff = Math.floor((now - lastT) / 60000);
-            timerEl.innerText = diff + "m ago";
-        } else {
-            timerEl.innerText = "--";
+        function updateHeightLabel() {
+            const inches = document.getElementById('userHeight').value;
+            const feet = Math.floor(inches / 12);
+            const remainingInches = inches % 12;
+            document.getElementById('heightLabel').innerText = `${feet}'${remainingInches}"`;
         }
 
-        let col = "var(--safe)", st = "Sober";
-        if(curBac > .02) { col="var(--social)"; st="Euphoria"; }
-        if(curBac > .08) { col="var(--impaired)"; st="Excitement"; }
-        if(curBac > .18) { col="var(--danger)"; st="Confusion"; }
-        const pill = document.getElementById('stage-pill');
-        pill.innerText = st; pill.style.color = col; pill.style.borderColor = col;
-        document.getElementById('bac').style.color = col;
-    }
+        function saveProfile() {
+            profile.weight = parseFloat(document.getElementById('userWeight').value);
+            profile.heightInches = parseInt(document.getElementById('userHeight').value);
+            profile.age = parseInt(document.getElementById('userAge').value);
+            localStorage.setItem('tabProfile', JSON.stringify(profile));
+            updateBAC();
+        }
 
-    setInterval(update, 1000); // 1-second update for smoother timer
-    update();
-</script>
+        function toggleSettings() {
+            document.getElementById('mainUI').classList.toggle('hidden');
+            document.getElementById('controls').classList.toggle('hidden');
+            document.getElementById('settingsUI').classList.toggle('hidden');
+        }
+
+        function addDrink(abv, sizeOz = 12) {
+            const now = Date.now();
+            if (!sessionData.startTime) sessionData.startTime = now;
+            sessionData.lastDrinkTime = now;
+            sessionData.totalAlcoholOz += (sizeOz * abv);
+            sessionData.drinkCount++;
+            saveAndRefresh();
+        }
+
+        function updateBAC() {
+            if (!sessionData.startTime) return;
+            const now = Date.now();
+            const hoursPassed = (now - sessionData.startTime) / 3600000;
+            
+            // Widmark with dynamic profile
+            const r = 0.68; // Standard male constant
+            let rawBAC = (sessionData.totalAlcoholOz * 5.14 / (profile.weight * r));
+            let currentBAC = rawBAC - (0.015 * hoursPassed);
+            
+            document.getElementById('bac').innerText = Math.max(0, currentBAC).toFixed(3);
+            
+            if (sessionData.lastDrinkTime) {
+                const diff = Math.floor((now - sessionData.lastDrinkTime) / 1000);
+                const h = Math.floor(diff / 3600).toString().padStart(2, '0');
+                const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                const s = (diff % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${h}:${m}:${s}`;
+            }
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('tabSession', JSON.stringify(sessionData));
+            document.getElementById('total-count').innerText = sessionData.drinkCount;
+            updateBAC();
+        }
+
+        function resetTab() {
+            if (confirm("Reset the tab?")) {
+                sessionData = { startTime: null, lastDrinkTime: null, totalAlcoholOz: 0, drinkCount: 0 };
+                saveAndRefresh();
+            }
+        }
+
+        // Initialize UI
+        document.getElementById('userWeight').value = profile.weight;
+        document.getElementById('userHeight').value = profile.heightInches;
+        document.getElementById('userAge').value = profile.age;
+        updateHeightLabel();
+        setInterval(updateBAC, 1000);
+        saveAndRefresh();
+    </script>
 </body>
 </html>
