@@ -4,165 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>JARVIS v19.0</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>THE TAB v18.0</title>
     <style>
         :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; touch-action: manipulation; }
+        
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { 
             background: var(--dark); color: #fff; font-family: -apple-system, system-ui; 
-            margin: 0; padding: env(safe-area-inset-top) 20px 140px 20px; 
+            margin: 0; padding: env(safe-area-inset-top) 20px 120px 20px; 
+            overflow-x: hidden; height: 100%;
         }
 
-        /* HIGH-PRECISION HUD */
-        .bac-container { text-align: center; padding: 30px 0; position: sticky; top: 0; z-index: 2000; background: black; }
-        .bac-display { font-size: 7.5rem; font-weight: 900; letter-spacing: -6px; line-height: 1; margin: 0; }
-        #stage-pill { display: inline-block; padding: 6px 18px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; margin-bottom: 10px; }
+        .bac-container { text-align: center; padding: 20px 0; position: sticky; top: 0; z-index: 50; background: linear-gradient(to bottom, black 80%, transparent); }
+        .bac-display { font-size: 7.5rem; font-weight: 900; letter-spacing: -6px; line-height: 1; margin: 0; transition: color 0.3s; }
+        #stage-pill { display: inline-block; padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; margin-bottom: 10px; }
 
         .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 25px; }
         .hud-item { text-align: center; }
-        .hud-label { font-size: 0.6rem; color: #555; text-transform: uppercase; font-weight: 800; display: block; }
+        .hud-label { font-size: 0.55rem; color: #555; text-transform: uppercase; font-weight: 800; display: block; }
         .hud-val { font-size: 1.8rem; font-weight: 900; }
 
-        /* THE INPUT GRID - FORCED TO FRONT */
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; position: relative; z-index: 3000; }
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; position: relative; z-index: 100; }
         .cat-btn { 
-            background: #111; border: 1px solid #222; color: #888; padding: 25px; border-radius: 18px; 
-            font-weight: 800; text-transform: uppercase; font-size: 0.8rem;
-            transform: translateZ(0); /* Hardware Acceleration */
+            background: #111; border: 1px solid #222; color: #888; padding: 22px; border-radius: 15px; 
+            font-weight: 800; text-transform: uppercase; font-size: 0.75rem; cursor: pointer;
         }
-        .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; box-shadow: 0 0 20px rgba(255,255,255,0.15); }
+        .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
 
-        /* SCROLLABLE INVENTORY */
         .inventory-list { 
-            background: #0a0a0a; border-radius: 25px; border: 1px solid #1a1a1a; 
-            max-height: 350px; overflow-y: auto; display: none; margin-bottom: 30px;
-            position: relative; z-index: 3000;
-        }
-        .drink-row { padding: 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
-        .drink-info b { display: block; font-size: 1rem; }
-        .drink-info span { font-size: 0.7rem; color: #555; }
-        
-        .add-btn { background: #fff; color: #000; border: none; padding: 15px 25px; border-radius: 12px; font-size: 0.85rem; font-weight: 900; }
-
-        .controls { position: fixed; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 10px; z-index: 4000; }
-        .ctrl-btn { flex: 1; padding: 18px; border-radius: 15px; border: 1px solid #333; background: #000; color: #fff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; }
-    </style>
-</head>
-<body>
-
-<div class="bac-container">
-    <div id="stage-pill">Sober</div>
-    <p class="bac-display" id="bac">.0000</p>
-</div>
-
-<div class="hud-counters">
-    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="s-count" style="color:var(--impaired)">0</span></div>
-    <div class="hud-item"><span class="hud-label">Cans/Other</span><span class="hud-val" id="c-count" style="color:var(--social)">0</span></div>
-</div>
-
-<div class="cat-grid" id="main-grid">
-    <div class="cat-btn" data-cat="beer">Beer</div>
-    <div class="cat-btn" data-cat="seltz">Seltz/Tea</div>
-    <div class="cat-btn" data-cat="mixed">Mixed</div>
-    <div class="cat-btn" data-cat="liquor">Liquor</div>
-    <div class="cat-btn" data-cat="wine">Wine</div>
-    <div class="cat-btn" data-cat="cider">Cider</div>
-</div>
-
-<div id="inv" class="inventory-list"></div>
-
-<div class="controls">
-    <div class="ctrl-btn" id="undo-btn">Undo</div>
-    <div class="ctrl-btn" id="reset-btn" style="color:var(--danger)">Reset</div>
-</div>
-
-<script>
-    const db = {
-        beer: [{n:"Michelob Ultra",a:0.042,v:12},{n:"Busch Light",a:0.041,v:12},{n:"Coors Banquet",a:0.05,v:12},{n:"Voodoo Ranger",a:0.09,v:12}],
-        seltz: [{n:"Surfside Tea",a:0.045,v:12},{n:"High Noon",a:0.045,v:12},{n:"BeatBox",a:0.111,v:16.9},{n:"White Claw Surge",a:0.08,v:12}],
-        mixed: [{n:"Margarita",a:0.15,v:8},{n:"Long Island",a:0.22,v:12},{n:"Vodka Soda",a:0.1,v:10}],
-        liquor: [{n:"Tequila Shot",a:0.4,v:1.5,s:true},{n:"Vodka Shot",a:0.4,v:1.5,s:true},{n:"Fireball",a:0.33,v:1.5,s:true},{n:"Pink Whitney",a:0.3,v:1.5,s:true}],
-        wine: [{n:"Red Wine",a:0.13,v:5},{n:"White Wine",a:0.12,v:5}],
-        cider: [{n:"Angry Orchard",a:0.05,v:12},{n:"Downeast",a:0.051,v:12}]
-    };
-
-    let logs = JSON.parse(localStorage.getItem('jarvis_precision_tab')) || [];
-    
-    // HIGH PRECISION CONSTANTS
-    const WT_LBS = 175;
-    const WT_GRAMS = WT_LBS * 453.592;
-    const GENDER_R = 0.68; // Watson Male Constant
-    const BURN_RATE = 0.015; // BAC per hour
-
-    function update() {
-        const now = Date.now();
-        let currentBAC = 0, shots = 0, cans = 0;
-
-        logs.forEach(d => {
-            const hrsPassed = (now - d.t) / 3600000;
-            const alcoholGrams = d.v * d.a * 23.33; // Precise oz to grams conversion
-            const rawBAC = (alcoholGrams / (WT_GRAMS * GENDER_R)) * 100;
-            const decayedBAC = rawBAC - (BURN_RATE * hrsPassed);
-            
-            if (decayedBAC > 0) currentBAC += decayedBAC;
-            if (d.s) shots++; else if (d.a > 0) cans++;
-        });
-
-        document.getElementById('bac').innerText = currentBAC.toFixed(4).substring(1);
-        document.getElementById('s-count').innerText = shots;
-        document.getElementById('c-count').innerText = cans;
-
-        let col = "var(--safe)", st = "Sober";
-        if(currentBAC > .02) { col="var(--social)"; st="Euphoria"; }
-        if(currentBAC > .08) { col="var(--impaired)"; st="Excitement"; }
-        if(currentBAC > .18) { col="var(--danger)"; st="Confusion"; }
-        
-        document.getElementById('stage-pill').innerText = st;
-        document.getElementById('stage-pill').style.color = col;
-        document.getElementById('bac').style.color = col;
-    }
-
-    // INTERACTION ENGINE: Fast-Touch Listeners
-    function bind(id, func) {
-        const el = typeof id === 'string' ? document.getElementById(id) : id;
-        el.addEventListener('touchstart', (e) => { e.preventDefault(); func(e); }, {passive: false});
-    }
-
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-        bind(btn, () => {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const cat = btn.getAttribute('data-cat');
-            const inv = document.getElementById('inv');
-            inv.innerHTML = db[cat].map(d => `
-                <div class="drink-row">
-                    <div class="drink-info"><b>${d.n}</b><span>${(d.a*100).toFixed(1)}% | ${d.v}oz</span></div>
-                    <div class="add-btn" data-n="${d.n}" data-a="${d.a}" data-v="${d.v}" data-s="${d.s||''}">ADD</div>
-                </div>
-            `).join('');
-            inv.style.display = 'block';
-            
-            // Re-bind new ADD buttons
-            document.querySelectorAll('.add-btn').forEach(ab => {
-                bind(ab, () => {
-                    logs.push({ 
-                        n: ab.getAttribute('data-n'), 
-                        a: parseFloat(ab.getAttribute('data-a')), 
-                        v: parseFloat(ab.getAttribute('data-v')), 
-                        s: !!ab.getAttribute('data-s'),
-                        t: Date.now() 
-                    });
-                    localStorage.setItem('jarvis_precision_tab', JSON.stringify(logs));
-                    update();
-                });
-            });
-        });
-    });
-
-    bind('undo-btn', () => { logs.pop(); localStorage.setItem('jarvis_precision_tab', JSON.stringify(logs)); update(); });
-    bind('reset-btn', () => { if(confirm("Clear night?")) { logs = []; localStorage.setItem('jarvis_precision_tab', JSON.stringify(logs)); update(); }});
-
-    setInterval(update, 2000); update();
-</script>
-</body>
-</html>
+            background: #0a0a0a; border-radius: 20px; border: 1px solid
