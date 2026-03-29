@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>THE TAB v18.2</title>
+    <title>THE TAB v18.4</title>
     <style>
         :root {
             --bg-color: #000;
@@ -219,8 +219,9 @@
         }
 
         function saveAndRefresh() {
-            localStorage.setItem('tabSession', JSON.stringify(sessionData));
+            //localStorage.setItem('tabSession', JSON.stringify(sessionData));
             document.getElementById('total-count').innerText = sessionData.drinkCount;
+            document.getElementById("bac").innerText = ".0000";
             updateBAC();
         }
 
@@ -236,7 +237,7 @@
         document.getElementById('userHeight').value = profile.heightInches;
         document.getElementById('userAge').value = profile.age;
         updateHeightLabel();
-        setInterval(updateBAC, 1000);
+        //setInterval(updateBAC, 1000);
         saveAndRefresh();
     </script>
 </body>
