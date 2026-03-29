@@ -4,60 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>THE TAB v20.0</title>
+    <title>JARVIS v19.0</title>
     <style>
-        :root { 
-            --safe: #00ff88; --social: #00ccff; --buzzed: #FFCC00; 
-            --impaired: #ff9900; --danger: #DA0A13; --critical: #7a0000; --dark: #000; 
-        }
+        :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; touch-action: manipulation; }
         body { 
-            background: var(--dark); color: #fff; font-family: -apple-system, system-ui;
-            margin: 0; padding: env(safe-area-inset-top) 20px 120px 20px;
-            overflow-x: hidden;
+            background: var(--dark); color: #fff; font-family: -apple-system, system-ui; 
+            margin: 0; padding: env(safe-area-inset-top) 20px 140px 20px; 
         }
-        header { text-align: center; padding: 20px 0; position: sticky; top: 0; background: black; z-index: 5000; }
-        .bac-display { font-size: 7rem; font-weight: 900; line-height: 1; letter-spacing: -6px; margin: 5px 0; pointer-events: none; }
-        #stage-pill { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; margin-bottom: 10px; pointer-events: none; }
+
+        /* HIGH-PRECISION HUD */
+        .bac-container { text-align: center; padding: 30px 0; position: sticky; top: 0; z-index: 2000; background: black; }
+        .bac-display { font-size: 7.5rem; font-weight: 900; letter-spacing: -6px; line-height: 1; margin: 0; }
+        #stage-pill { display: inline-block; padding: 6px 18px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; margin-bottom: 10px; }
+
+        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 25px; }
+        .hud-item { text-align: center; }
+        .hud-label { font-size: 0.6rem; color: #555; text-transform: uppercase; font-weight: 800; display: block; }
+        .hud-val { font-size: 1.8rem; font-weight: 900; }
+
+        /* THE INPUT GRID - FORCED TO FRONT */
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; position: relative; z-index: 3000; }
+        .cat-btn { 
+            background: #111; border: 1px solid #222; color: #888; padding: 25px; border-radius: 18px; 
+            font-weight: 800; text-transform: uppercase; font-size: 0.8rem;
+            transform: translateZ(0); /* Hardware Acceleration */
+        }
+        .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; box-shadow: 0 0 20px rgba(255,255,255,0.15); }
+
+        /* SCROLLABLE INVENTORY */
+        .inventory-list { 
+            background: #0a0a0a; border-radius: 25px; border: 1px solid #1a1a1a; 
+            max-height: 350px; overflow-y: auto; display: none; margin-bottom: 30px;
+            position: relative; z-index: 3000;
+        }
+        .drink-row { padding: 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
+        .drink-info b { display: block; font-size: 1rem; }
+        .drink-info span { font-size: 0.7rem; color: #555; }
         
-        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 20px; pointer-events: none; }
-        .hud-item { text-align: center; flex: 1; }
-        .hud-label { font-size: 0.55rem; color: #444; text-transform: uppercase; font-weight: 800; }
-        .hud-val { font-size: 1.5rem; font-weight: 900; display: block; margin-top: 5px; color: #fff; }
+        .add-btn { background: #fff; color: #000; border: none; padding: 15px 25px; border-radius: 12px; font-size: 0.85rem; font-weight: 900; }
 
-        /* THE CAT GRID */
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; position: relative; z-index: 6000; }
-        .cat-btn { background: #111; border: 1px solid #222; color: #555; padding: 15px 5px; border-radius: 12px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; transform: translateZ(0); }
-        .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
-
-        .search-results { 
-            background: #161618; border-radius: 18px; margin-bottom: 20px; 
-            max-height: 350px; overflow-y: auto; display: none; border: 1px solid #333;
-            position: relative; z-index: 6000;
-        }
-        .search-item { padding: 16px; border-bottom: 1px solid #222; }
-        .time-options { display: flex; gap: 8px; margin-top: 12px; }
-        .time-btn { flex: 1; background: #222; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 700; transform: translateZ(0); }
-
-        .history-container { margin-top: 20px; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #111; font-size: 0.8rem; color: #333; }
-        .remove-btn { background: #1a1a1a; border: none; color: #DA0A13; padding: 8px 12px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; transform: translateZ(0); }
+        .controls { position: fixed; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 10px; z-index: 4000; }
+        .ctrl-btn { flex: 1; padding: 18px; border-radius: 15px; border: 1px solid #333; background: #000; color: #fff; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-<header>
+<div class="bac-container">
     <div id="stage-pill">Sober</div>
-    <div class="bac-display" id="bac">.0000</div>
-</header>
-
-<div class="hud-counters">
-    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="shot-count" style="color: var(--impaired);">0</span></div>
-    <div class="hud-item"><span class="hud-label">Cans/Mixed</span><span class="hud-val" id="can-count" style="color: var(--social);">0</span></div>
+    <p class="bac-display" id="bac">.0000</p>
 </div>
 
-<div class="cat-grid" id="cat-grid">
+<div class="hud-counters">
+    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="s-count" style="color:var(--impaired)">0</span></div>
+    <div class="hud-item"><span class="hud-label">Cans/Other</span><span class="hud-val" id="c-count" style="color:var(--social)">0</span></div>
+</div>
+
+<div class="cat-grid" id="main-grid">
     <div class="cat-btn" data-cat="beer">Beer</div>
     <div class="cat-btn" data-cat="seltz">Seltz/Tea</div>
     <div class="cat-btn" data-cat="mixed">Mixed</div>
@@ -66,74 +69,63 @@
     <div class="cat-btn" data-cat="cider">Cider</div>
 </div>
 
-<div id="results" class="search-results"></div>
+<div id="inv" class="inventory-list"></div>
 
-<div class="history-container" id="history-list"></div>
-
-<button id="purge-btn" style="margin-top:40px; width:100%; background:none; border:none; color:#1a1a1a; font-size:0.6rem; letter-spacing:3px; padding:20px;">PURGE SYSTEM</button>
+<div class="controls">
+    <div class="ctrl-btn" id="undo-btn">Undo</div>
+    <div class="ctrl-btn" id="reset-btn" style="color:var(--danger)">Reset</div>
+</div>
 
 <script>
-    const drinkDB = {
+    const db = {
         beer: [{n:"Michelob Ultra",a:0.042,v:12},{n:"Busch Light",a:0.041,v:12},{n:"Coors Banquet",a:0.05,v:12},{n:"Voodoo Ranger",a:0.09,v:12}],
-        seltz: [{n:"Surfside Tea",a:0.045,v:12},{n:"Surfside Lemon",a:0.045,v:12},{n:"High Noon",a:0.045,v:12},{n:"BeatBox",a:0.111,v:16.9}],
-        mixed: [{n:"Long Island",a:0.22,v:12},{n:"Margarita",a:0.15,v:8},{n:"Vodka Soda",a:0.09,v:10}],
-        liquor: [{n:"Tequila Shot",a:0.4,v:1.5,s:true},{n:"Vodka Shot",a:0.4,v:1.5,s:true},{n:"Fireball",a:0.33,v:1.5,s:true}],
+        seltz: [{n:"Surfside Tea",a:0.045,v:12},{n:"High Noon",a:0.045,v:12},{n:"BeatBox",a:0.111,v:16.9},{n:"White Claw Surge",a:0.08,v:12}],
+        mixed: [{n:"Margarita",a:0.15,v:8},{n:"Long Island",a:0.22,v:12},{n:"Vodka Soda",a:0.1,v:10}],
+        liquor: [{n:"Tequila Shot",a:0.4,v:1.5,s:true},{n:"Vodka Shot",a:0.4,v:1.5,s:true},{n:"Fireball",a:0.33,v:1.5,s:true},{n:"Pink Whitney",a:0.3,v:1.5,s:true}],
         wine: [{n:"Red Wine",a:0.13,v:5},{n:"White Wine",a:0.12,v:5}],
         cider: [{n:"Angry Orchard",a:0.05,v:12},{n:"Downeast",a:0.051,v:12}]
     };
 
-    let session = JSON.parse(localStorage.getItem('tab_v20_session')) || [];
-    let bio = { weight: 175, sex: 0.68 }; 
-
-    function bind(el, func) {
-        el.addEventListener('touchstart', (e) => { e.preventDefault(); func(e); }, {passive: false});
-    }
+    let logs = JSON.parse(localStorage.getItem('jarvis_precision_tab')) || [];
+    
+    // HIGH PRECISION CONSTANTS
+    const WT_LBS = 175;
+    const WT_GRAMS = WT_LBS * 453.592;
+    const GENDER_R = 0.68; // Watson Male Constant
+    const BURN_RATE = 0.015; // BAC per hour
 
     function update() {
         const now = Date.now();
-        let totalBac = 0, sCount = 0, cCount = 0;
-        const metabolismRate = 0.015;
+        let currentBAC = 0, shots = 0, cans = 0;
 
-        session.forEach(d => {
-            const hrsSince = (now - d.time) / 3600000;
-            const rawBac = (d.oz * d.abv * 5.14) / (bio.weight * bio.sex);
-            const decayedBac = rawBac - (metabolismRate * hrsSince);
-            if (decayedBac > 0) totalBac += decayedBac;
-            if (d.isShot) sCount++; else cCount++;
+        logs.forEach(d => {
+            const hrsPassed = (now - d.t) / 3600000;
+            const alcoholGrams = d.v * d.a * 23.33; // Precise oz to grams conversion
+            const rawBAC = (alcoholGrams / (WT_GRAMS * GENDER_R)) * 100;
+            const decayedBAC = rawBAC - (BURN_RATE * hrsPassed);
+            
+            if (decayedBAC > 0) currentBAC += decayedBAC;
+            if (d.s) shots++; else if (d.a > 0) cans++;
         });
 
-        document.getElementById('bac').innerText = totalBac.toFixed(4).substring(1);
-        document.getElementById('shot-count').innerText = sCount;
-        document.getElementById('can-count').innerText = cCount;
+        document.getElementById('bac').innerText = currentBAC.toFixed(4).substring(1);
+        document.getElementById('s-count').innerText = shots;
+        document.getElementById('c-count').innerText = cans;
 
-        let color = "var(--safe)", stage = "Sober";
-        if (totalBac >= 0.02) { color = "var(--social)"; stage = "Euphoria"; }
-        if (totalBac >= 0.08) { color = "var(--impaired)"; stage = "Excitement"; }
-        if (totalBac >= 0.18) { color = "var(--danger)"; stage = "Confusion"; }
-
-        const pill = document.getElementById('stage-pill');
-        pill.innerText = stage; pill.style.color = color; pill.style.borderColor = color;
-        document.getElementById('bac').style.color = color;
-
-        const hist = document.getElementById('history-list');
-        hist.innerHTML = session.slice().reverse().slice(0, 5).map(d => `
-            <div class="history-item">
-                <span>${d.name} <small style="color:#222; margin-left:10px;">${new Date(d.time).getHours()}:${(new Date(d.time).getMinutes()<10?'0':'')+new Date(d.time).getMinutes()}</small></span>
-                <div class="remove-btn" data-id="${d.id}">Remove</div>
-            </div>
-        `).join('');
-
-        document.querySelectorAll('.remove-btn').forEach(rb => {
-            bind(rb, () => {
-                session = session.filter(s => s.id != rb.getAttribute('data-id'));
-                save();
-            });
-        });
+        let col = "var(--safe)", st = "Sober";
+        if(currentBAC > .02) { col="var(--social)"; st="Euphoria"; }
+        if(currentBAC > .08) { col="var(--impaired)"; st="Excitement"; }
+        if(currentBAC > .18) { col="var(--danger)"; st="Confusion"; }
+        
+        document.getElementById('stage-pill').innerText = st;
+        document.getElementById('stage-pill').style.color = col;
+        document.getElementById('bac').style.color = col;
     }
 
-    function save() {
-        localStorage.setItem('tab_v20_session', JSON.stringify(session));
-        update();
+    // INTERACTION ENGINE: Fast-Touch Listeners
+    function bind(id, func) {
+        const el = typeof id === 'string' ? document.getElementById(id) : id;
+        el.addEventListener('touchstart', (e) => { e.preventDefault(); func(e); }, {passive: false});
     }
 
     document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -141,40 +133,36 @@
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             const cat = btn.getAttribute('data-cat');
-            const res = document.getElementById('results');
-            res.innerHTML = drinkDB[cat].map(d => `
-                <div class="search-item">
-                    <div style="display:flex; justify-content:space-between; font-weight:700; font-size:0.9rem;">
-                        <span>${d.n}</span><span>${(d.a*100).toFixed(1)}%</span>
-                    </div>
-                    <div class="time-options">
-                        <div class="time-btn add-now" data-n="${d.n}" data-v="${d.v}" data-a="${d.a}" data-s="${d.s||''}" data-o="0">Now</div>
-                        <div class="time-btn add-now" data-n="${d.n}" data-v="${d.v}" data-a="${d.a}" data-s="${d.s||''}" data-o="30">-30m</div>
-                    </div>
+            const inv = document.getElementById('inv');
+            inv.innerHTML = db[cat].map(d => `
+                <div class="drink-row">
+                    <div class="drink-info"><b>${d.n}</b><span>${(d.a*100).toFixed(1)}% | ${d.v}oz</span></div>
+                    <div class="add-btn" data-n="${d.n}" data-a="${d.a}" data-v="${d.v}" data-s="${d.s||''}">ADD</div>
                 </div>
             `).join('');
-            res.style.display = 'block';
-
-            document.querySelectorAll('.add-now').forEach(ab => {
+            inv.style.display = 'block';
+            
+            // Re-bind new ADD buttons
+            document.querySelectorAll('.add-btn').forEach(ab => {
                 bind(ab, () => {
-                    session.push({
-                        name: ab.getAttribute('data-n'),
-                        oz: parseFloat(ab.getAttribute('data-v')),
-                        abv: parseFloat(ab.getAttribute('data-a')),
-                        isShot: !!ab.getAttribute('data-s'),
-                        time: Date.now() - (parseInt(ab.getAttribute('data-o')) * 60000),
-                        id: Math.random()
+                    logs.push({ 
+                        n: ab.getAttribute('data-n'), 
+                        a: parseFloat(ab.getAttribute('data-a')), 
+                        v: parseFloat(ab.getAttribute('data-v')), 
+                        s: !!ab.getAttribute('data-s'),
+                        t: Date.now() 
                     });
-                    save();
+                    localStorage.setItem('jarvis_precision_tab', JSON.stringify(logs));
+                    update();
                 });
             });
         });
     });
 
-    bind(document.getElementById('purge-btn'), () => { if(confirm('Wipe?')){localStorage.clear(); location.reload();} });
+    bind('undo-btn', () => { logs.pop(); localStorage.setItem('jarvis_precision_tab', JSON.stringify(logs)); update(); });
+    bind('reset-btn', () => { if(confirm("Clear night?")) { logs = []; localStorage.setItem('jarvis_precision_tab', JSON.stringify(logs)); update(); }});
 
-    update();
-    setInterval(update, 2000);
+    setInterval(update, 2000); update();
 </script>
 </body>
 </html>
