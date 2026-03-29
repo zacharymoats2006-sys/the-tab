@@ -5,61 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>THE TAB v18.0</title>
+    <title>THE TAB</title>
     <style>
         :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
+        body { background: var(--dark); color: #fff; font-family: -apple-system, system-ui; margin: 0; padding: env(safe-area-inset-top) 20px 100px 20px; overflow-x: hidden; }
         
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { 
-            background: var(--dark); color: #fff; font-family: -apple-system, system-ui; 
-            margin: 0; padding: env(safe-area-inset-top) 20px 120px 20px; 
-            overflow-x: hidden; height: 100%;
-        }
+        /* Prevent the BAC text from blocking clicks */
+        .bac-display { font-size: 7.5rem; font-weight: 900; text-align: center; letter-spacing: -6px; margin: 10px 0; pointer-events: none; position: relative; z-index: 1; }
+        #stage-pill { display: block; width: fit-content; margin: 0 auto 10px; padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; pointer-events: none; }
+        
+        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 20px; pointer-events: none; }
+        .hud-item { text-align: center; flex: 1; }
+        .hud-label { font-size: 0.55rem; color: #444; text-transform: uppercase; font-weight: 800; }
+        .hud-val { font-size: 1.5rem; font-weight: 900; display: block; margin-top: 5px; }
 
-        .bac-container { text-align: center; padding: 20px 0; position: sticky; top: 0; z-index: 50; background: linear-gradient(to bottom, black 80%, transparent); }
-        .bac-display { font-size: 7.5rem; font-weight: 900; letter-spacing: -6px; line-height: 1; margin: 0; transition: color 0.3s; }
-        #stage-pill { display: inline-block; padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; margin-bottom: 10px; }
-
-        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 25px; }
-        .hud-item { text-align: center; }
-        .hud-label { font-size: 0.55rem; color: #555; text-transform: uppercase; font-weight: 800; display: block; }
-        .hud-val { font-size: 1.8rem; font-weight: 900; }
-
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; position: relative; z-index: 100; }
-        .cat-btn { 
-            background: #111; border: 1px solid #222; color: #888; padding: 22px; border-radius: 15px; 
-            font-weight: 800; text-transform: uppercase; font-size: 0.75rem; cursor: pointer;
-        }
+        /* Buttons need high z-index and pointer cursor for mobile */
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; position: relative; z-index: 999; }
+        .cat-btn { background: #111; border: 1px solid #222; color: #777; padding: 18px; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .cat-btn:active { background: #333; color: #fff; }
         .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
 
-        .inventory-list { 
-            background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; 
-            max-height: 400px; overflow-y: auto; display: none; margin-bottom: 30px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .drink-row { padding: 18px 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
-        .drink-info b { display: block; font-size: 0.95rem; }
-        .drink-info span { font-size: 0.65rem; color: #555; }
-        
-        .add-btn { 
-            background: #fff; color: #000; border: none; padding: 12px 20px; border-radius: 10px; 
-            font-size: 0.8rem; font-weight: 900; cursor: pointer;
-        }
-
-        .controls { position: fixed; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
-        .ctrl-btn { flex: 1; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: #fff; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; }
+        .inventory-list { background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; max-height: 300px; overflow-y: auto; display: none; margin-bottom: 20px; position: relative; z-index: 999; }
+        .drink-row { padding: 15px 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
+        .drink-info b { display: block; font-size: 0.9rem; pointer-events: none; }
+        .drink-info span { font-size: 0.65rem; color: #444; pointer-events: none; }
+        .add-btn { background: #fff; color: #000; border: none; padding: 12px 18px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; cursor: pointer; z-index: 1000; }
     </style>
 </head>
 <body>
 
-<div class="bac-container">
-    <div id="stage-pill">Sober</div>
-    <p class="bac-display" id="bac">.0000</p>
-</div>
+<div id="stage-pill">Sober</div>
+<div class="bac-display" id="bac">.0000</div>
 
 <div class="hud-counters">
-    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="s-count" style="color:var(--impaired)">0</span></div>
-    <div class="hud-item"><span class="hud-label">Cans/Other</span><span class="hud-val" id="c-count" style="color:var(--social)">0</span></div>
+    <div class="hud-item"><span class="hud-label">Shots</span><span class="hud-val" id="s-count" style="color: var(--impaired);">0</span></div>
+    <div class="hud-item"><span class="hud-label">Cans/Other</span><span class="hud-val" id="c-count" style="color: var(--social);">0</span></div>
 </div>
 
 <div class="cat-grid">
@@ -73,24 +53,18 @@
 
 <div id="inv" class="inventory-list"></div>
 
-<div class="controls">
-    <button class="ctrl-btn" onclick="undo()">Undo Last</button>
-    <button class="ctrl-btn" style="color:var(--danger)" onclick="resetTab()">Reset All</button>
-</div>
-
 <script>
     const db = {
         beer: [{n:"Michelob Ultra",a:0.042,v:12},{n:"Busch Light",a:0.041,v:12},{n:"Coors Banquet",a:0.05,v:12},{n:"Voodoo Ranger",a:0.09,v:12}],
-        seltz: [{n:"Surfside Tea",a:0.045,v:12},{n:"High Noon",a:0.045,v:12},{n:"BeatBox",a:0.111,v:16.9},{n:"White Claw Surge",a:0.08,v:12}],
-        mixed: [{n:"Margarita",a:0.15,v:8},{n:"Long Island",a:0.22,v:12},{n:"Vodka Soda",a:0.1,v:10}],
-        liquor: [{n:"Tequila Shot",a:0.4,v:1.5,s:true},{n:"Vodka Shot",a:0.4,v:1.5,s:true},{n:"Fireball",a:0.33,v:1.5,s:true}],
-        wine: [{n:"Red Wine",a:0.13,v:5},{n:"White Wine",a:0.12,v:5}],
+        seltz: [{n:"Surfside Tea",a:0.045,v:12},{n:"Surfside Lemon",a:0.045,v:12},{n:"High Noon",a:0.045,v:12},{n:"White Claw Surge",a:0.08,v:12},{n:"BeatBox",a:0.111,v:16.9}],
+        mixed: [{n:"Margarita",a:0.15,v:8},{n:"Moscow Mule",a:0.11,v:10},{n:"Long Island",a:0.22,v:12},{n:"Vodka Soda",a:0.10,v:10}],
+        liquor: [{n:"Tequila Shot",a:0.40,v:1.5,s:true},{n:"Vodka Shot",a:0.40,v:1.5,s:true},{n:"Fireball",a:0.33,v:1.5,s:true},{n:"Pink Whitney",a:0.30,v:1.5,s:true}],
+        wine: [{n:"Red Wine",a:0.13,v:5},{n:"White Wine",a:0.12,v:5},{n:"Prosecco",a:0.11,v:5}],
         cider: [{n:"Angry Orchard",a:0.05,v:12},{n:"Downeast",a:0.051,v:12}]
     };
 
-    let logs = JSON.parse(localStorage.getItem('jarvis_tab_v18')) || [];
-    let weight = 175;
-    let r = 0.68;
+    let logs = JSON.parse(localStorage.getItem('tab_v17_logs')) || [];
+    let weight = 175; let r = 0.68;
 
     function showCat(cat, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -103,21 +77,18 @@
             </div>
         `).join('');
         inv.style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     function add(n, a, v, s) {
         logs.push({ n, a, v, s, t: Date.now() });
-        save();
+        localStorage.setItem('tab_v17_logs', JSON.stringify(logs));
+        update();
     }
-
-    function undo() { logs.pop(); save(); }
-    function resetTab() { if(confirm("Reset the night?")) { logs = []; save(); } }
-    function save() { localStorage.setItem('jarvis_tab_v18', JSON.stringify(logs)); update(); }
 
     function update() {
         const now = Date.now();
         let curBac = 0, shots = 0, cans = 0;
-        
         logs.forEach(d => {
             const hrs = (now - d.t) / 3600000;
             const drinkBac = (d.v * d.a * 5.14 / (weight * r)) - (0.015 * hrs);
@@ -139,7 +110,7 @@
         document.getElementById('bac').style.color = col;
     }
 
-    setInterval(update, 2000); update();
+    setInterval(update, 1000); update();
 </script>
 </body>
 </html>
