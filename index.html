@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>THE TAB v18.1</title>
+    <title>THE TAB v18.2</title>
     <style>
         :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
         body { background: var(--dark); color: #fff; font-family: -apple-system, system-ui; margin: 0; padding: env(safe-area-inset-top) 20px 140px 20px; overflow-x: hidden; }
@@ -74,11 +74,31 @@
 </div>
 
 <script>
+    // EXPANDED HIGH-PROFILE DATABASE
     const staticDB = {
-        beer: [{n:"Michelob Ultra",a:0.042,v:12}, {n:"Busch Light",a:0.041,v:12}, {n:"Coors Banquet",a:0.05,v:12}, {n:"Voodoo Ranger",a:0.09,v:12}],
-        seltz: [{n:"Surfside Tea",a:0.045,v:12}, {n:"High Noon",a:0.045,v:12}, {n:"BeatBox",a:0.111,v:16.9}, {n:"Four Loko",a:0.14,v:24}],
-        mixed: [{n:"Vodka Soda",a:0.09,v:10}, {n:"Margarita",a:0.15,v:8}, {n:"Long Island",a:0.22,v:12}],
-        liquor: [{n:"Tequila Shot",a:0.40,v:1.5,s:true}, {n:"Vodka Shot",a:0.40,v:1.5,s:true}, {n:"Fireball",a:0.33,v:1.5,s:true}]
+        beer: [
+            {n:"Bud Light",a:0.042,v:12}, {n:"Modelo Especial",a:0.044,v:12}, 
+            {n:"Yuengling",a:0.045,v:12}, {n:"Miller Lite",a:0.042,v:12}, 
+            {n:"Coors Light",a:0.042,v:12}, {n:"Michelob Ultra",a:0.042,v:12}, 
+            {n:"Busch Light",a:0.041,v:12}, {n:"Corona Extra",a:0.046,v:12},
+            {n:"Voodoo Ranger",a:0.09,v:12}
+        ],
+        seltz: [
+            {n:"High Noon",a:0.045,v:12}, {n:"White Claw",a:0.05,v:12}, 
+            {n:"Truly",a:0.05,v:12}, {n:"Twisted Tea",a:0.05,v:12}, 
+            {n:"Surfside Tea",a:0.045,v:12}, {n:"BeatBox",a:0.111,v:16.9}, 
+            {n:"Four Loko",a:0.14,v:24}
+        ],
+        mixed: [
+            {n:"Monaco Cocktail",a:0.09,v:12}, {n:"Cutwater Marg",a:0.125,v:12}, 
+            {n:"Long Drink",a:0.055,v:12}, {n:"Vodka Soda",a:0.09,v:10}, 
+            {n:"Margarita",a:0.15,v:8}, {n:"Long Island",a:0.22,v:12}
+        ],
+        liquor: [
+            {n:"Tequila Shot",a:0.40,v:1.5,s:true}, {n:"Vodka Shot",a:0.40,v:1.5,s:true}, 
+            {n:"Whiskey Shot",a:0.40,v:1.5,s:true}, {n:"Fireball",a:0.33,v:1.5,s:true}, 
+            {n:"Pink Whitney",a:0.30,v:1.5,s:true}
+        ]
     };
 
     let logs = JSON.parse(localStorage.getItem('tab_v18_logs')) || [];
@@ -172,7 +192,7 @@
         document.getElementById('bac').style.color = col;
     }
 
-    setInterval(update, 10000); // Update every 10s to save battery but keep timer fresh
+    setInterval(update, 1000); // 1-second update for smoother timer
     update();
 </script>
 </body>
