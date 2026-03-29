@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>THE TAB</title>
+    <title>THE TAB v17.2</title>
     <style>
-        
         :root { --safe: #00ff88; --social: #00ccff; --impaired: #ff9900; --danger: #DA0A13; --dark: #000; }
-        body { background: var(--dark); color: #fff; font-family: -apple-system, system-ui; margin: 0; padding: env(safe-area-inset-top) 20px 100px 20px; }
+        body { background: var(--dark); color: #fff; font-family: -apple-system, system-ui; margin: 0; padding: env(safe-area-inset-top) 20px 100px 20px; overflow-x: hidden; }
         
-        .bac-display { font-size: 7.5rem; font-weight: 900; text-align: center; letter-spacing: -6px; margin: 10px 0; }
-        #stage-pill { display: block; width: fit-content; margin: 0 auto 10px; padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; }
+        .bac-display { font-size: 7.5rem; font-weight: 900; text-align: center; letter-spacing: -6px; margin: 10px 0; pointer-events: none; position: relative; z-index: 1; }
+        #stage-pill { display: block; width: fit-content; margin: 0 auto 10px; padding: 5px 15px; border-radius: 50px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #333; pointer-events: none; }
         
-        /* The Counter HUD */
-        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .hud-counters { display: flex; justify-content: space-around; background: #0a0a0a; padding: 15px; border-radius: 20px; border: 1px solid #1a1a1a; margin-bottom: 20px; pointer-events: none; }
         .hud-item { text-align: center; flex: 1; }
         .hud-label { font-size: 0.55rem; color: #444; text-transform: uppercase; font-weight: 800; }
-        .hud-val { font-size: 1.5rem; font-weight: 900; display: block; margin-top: 5px; color: #fff; }
+        .hud-val { font-size: 1.5rem; font-weight: 900; display: block; margin-top: 5px; }
 
-        /* Category Grid */
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .cat-btn { background: #111; border: 1px solid #222; color: #777; padding: 18px; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; transition: 0.2s; }
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; position: relative; z-index: 999; }
+        .cat-btn { background: #111; border: 1px solid #222; color: #777; padding: 18px; border-radius: 12px; font-weight: 800; text-transform: uppercase; font-size: 0.7rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .cat-btn:active { background: #333; color: #fff; }
         .cat-btn.active { border-color: #fff; color: #fff; background: #1a1a1a; }
 
-        /* Inventory List */
-        .inventory-list { background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; max-height: 300px; overflow-y: auto; display: none; margin-bottom: 20px; }
+        .inventory-list { background: #0a0a0a; border-radius: 20px; border: 1px solid #1a1a1a; max-height: 400px; overflow-y: auto; display: none; margin-bottom: 20px; position: relative; z-index: 999; }
         .drink-row { padding: 15px 20px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; align-items: center; }
-        .drink-info b { display: block; font-size: 0.9rem; }
-        .drink-info span { font-size: 0.65rem; color: #444; }
-        .add-btn { background: #fff; color: #000; border: none; padding: 10px 15px; border-radius: 8px; font-size: 0.7rem; font-weight: 900; }
+        .drink-info b { display: block; font-size: 0.9rem; pointer-events: none; }
+        .drink-info span { font-size: 0.65rem; color: #444; pointer-events: none; }
+        .add-btn { background: #fff; color: #000; border: none; padding: 12px 18px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; cursor: pointer; z-index: 1000; }
+        
+        .custom-form { background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; display: none; margin-bottom: 20px; }
+        .custom-form input, .custom-form select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #222; background: #000; color: #fff; font-size: 1rem; }
+        .save-custom-btn { background: var(--social); color: #000; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: 800; text-transform: uppercase; }
+
+        .footer-nav { text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        .undo-btn { background: none; border: 1px solid #222; color: #444; padding: 10px 20px; border-radius: 10px; font-size: 0.6rem; text-transform: uppercase; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -49,63 +52,81 @@
     <button class="cat-btn" onclick="showCat('seltz', this)">Seltz/Tea</button>
     <button class="cat-btn" onclick="showCat('mixed', this)">Mixed</button>
     <button class="cat-btn" onclick="showCat('liquor', this)">Liquor</button>
-    <button class="cat-btn" onclick="showCat('wine', this)">Wine</button>
-    <button class="cat-btn" onclick="showCat('cider', this)">Cider</button>
+    <button class="cat-btn" onclick="showCat('custom', this)" style="border-color: var(--social); color: var(--social);">+ Custom</button>
+</div>
+
+<div id="custom-ui" class="custom-form">
+    <h3 style="margin-top:0; font-size: 0.8rem; text-transform: uppercase; color: var(--social);">Create New Drink</h3>
+    <input type="text" id="cust-name" placeholder="Drink Name">
+    <input type="number" id="cust-abv" placeholder="ABV % (e.g. 5.0)" step="0.1">
+    <input type="number" id="cust-oz" placeholder="Ounces (e.g. 12)">
+    <select id="cust-type">
+        <option value="false">Can/Bottle/Glass</option>
+        <option value="true">Shot</option>
+    </select>
+    <button class="save-custom-btn" onclick="saveNewDrink()">Save & Add</button>
 </div>
 
 <div id="inv" class="inventory-list"></div>
 
+<div class="footer-nav">
+    <button class="undo-btn" onclick="undo()">Undo Last</button>
+    <button class="undo-btn" style="color: var(--danger);" onclick="if(confirm('Wipe session?')) { logs=[]; save(); }">Reset</button>
+</div>
+
 <script>
-    const db = {
-        beer: [
-            { n: "Michelob Ultra", a: 0.042, v: 12 }, { n: "Busch Light", a: 0.041, v: 12 },
-            { n: "Coors Banquet", a: 0.05, v: 12 }, { n: "Voodoo Ranger IPA", a: 0.09, v: 12 },
-            { n: "Bud Light", a: 0.042, v: 12 }, { n: "Natural Light", a: 0.042, v: 12 }
-        ],
-        seltz: [
-            { n: "Surfside Iced Tea", a: 0.045, v: 12 }, { n: "Surfside Lemonade", a: 0.045, v: 12 },
-            { n: "High Noon", a: 0.045, v: 12 }, { n: "White Claw Surge", a: 0.08, v: 12 },
-            { n: "Truly Unruly", a: 0.08, v: 12 }, { n: "BeatBox", a: 0.111, v: 16.9 }
-        ],
-        mixed: [
-            { n: "Margarita", a: 0.15, v: 8 }, { n: "Moscow Mule", a: 0.11, v: 10 },
-            { n: "Long Island", a: 0.22, v: 12 }, { n: "Gin & Tonic", a: 0.12, v: 10 },
-            { n: "Vodka Soda", a: 0.10, v: 10 }, { n: "Old Fashioned", a: 0.32, v: 4 }
-        ],
-        liquor: [
-            { n: "Tequila Shot", a: 0.40, v: 1.5, s: true }, { n: "Vodka Shot", a: 0.40, v: 1.5, s: true },
-            { n: "Whiskey Shot", a: 0.40, v: 1.5, s: true }, { n: "Fireball Shot", a: 0.33, v: 1.5, s: true },
-            { n: "Pink Whitney", a: 0.30, v: 1.5, s: true }, { n: "151 Rum", a: 0.75, v: 1.5, s: true }
-        ],
-        wine: [
-            { n: "Red Wine", a: 0.135, v: 5 }, { n: "White Wine", a: 0.12, v: 5 },
-            { n: "Rosé", a: 0.12, v: 5 }, { n: "Prosecco", a: 0.11, v: 5 }
-        ],
-        cider: [
-            { n: "Angry Orchard", a: 0.05, v: 12 }, { n: "Downeast", a: 0.051, v: 12 },
-            { n: "Blake's Hard", a: 0.065, v: 12 }
-        ]
+    const staticDB = {
+        beer: [{n:"Michelob Ultra",a:0.042,v:12}, {n:"Busch Light",a:0.041,v:12}, {n:"Coors Banquet",a:0.05,v:12}, {n:"Voodoo Ranger",a:0.09,v:12}],
+        seltz: [{n:"Surfside Tea",a:0.045,v:12}, {n:"High Noon",a:0.045,v:12}, {n:"BeatBox",a:0.111,v:16.9}, {n:"Four Loko",a:0.14,v:24}],
+        mixed: [{n:"Vodka Soda",a:0.09,v:10}, {n:"Margarita",a:0.15,v:8}, {n:"Long Island",a:0.22,v:12}],
+        liquor: [{n:"Tequila Shot",a:0.40,v:1.5,s:true}, {n:"Vodka Shot",a:0.40,v:1.5,s:true}, {n:"Fireball",a:0.33,v:1.5,s:true}]
     };
 
-    let logs = JSON.parse(localStorage.getItem('tab_v16_logs')) || [];
+    let logs = JSON.parse(localStorage.getItem('tab_v17_logs')) || [];
+    let customDrinks = JSON.parse(localStorage.getItem('tab_custom_db')) || [];
     let weight = 175; let r = 0.68;
 
     function showCat(cat, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const inv = document.getElementById('inv');
-        inv.innerHTML = db[cat].map(d => `
-            <div class="drink-row">
-                <div class="drink-info"><b>${d.n}</b><span>${(d.a*100).toFixed(1)}% | ${d.v}oz</span></div>
-                <button class="add-btn" onclick="add('${d.n}',${d.a},${d.v},${d.s?true:false})">ADD</button>
-            </div>
-        `).join('');
-        inv.style.display = 'block';
+        const customUI = document.getElementById('custom-ui');
+        customUI.style.display = (cat === 'custom') ? 'block' : 'none';
+        
+        let list = (cat === 'custom') ? customDrinks : staticDB[cat];
+        if (list && list.length > 0) {
+            inv.innerHTML = list.map(d => `
+                <div class="drink-row">
+                    <div class="drink-info"><b>${d.n}</b><span>${(d.a*100).toFixed(1)}% | ${d.v}oz</span></div>
+                    <button class="add-btn" onclick="add('${d.n}',${d.a},${d.v},${d.s?true:false})">ADD</button>
+                </div>
+            `).join('');
+            inv.style.display = 'block';
+        } else { inv.style.display = 'none'; }
+    }
+
+    function saveNewDrink() {
+        const n = document.getElementById('cust-name').value;
+        const a = parseFloat(document.getElementById('cust-abv').value) / 100;
+        const v = parseFloat(document.getElementById('cust-oz').value);
+        const s = document.getElementById('cust-type').value === "true";
+        if (!n || isNaN(a) || isNaN(v)) return alert("Fill in all fields!");
+        customDrinks.push({ n, a, v, s });
+        localStorage.setItem('tab_custom_db', JSON.stringify(customDrinks));
+        add(n, a, v, s);
+        document.getElementById('cust-name').value = '';
+        document.getElementById('cust-abv').value = '';
+        document.getElementById('cust-oz').value = '';
     }
 
     function add(n, a, v, s) {
         logs.push({ n, a, v, s, t: Date.now() });
-        localStorage.setItem('tab_v16_logs', JSON.stringify(logs));
+        save();
+    }
+
+    function undo() { logs.pop(); save(); }
+    function save() {
+        localStorage.setItem('tab_v17_logs', JSON.stringify(logs));
         update();
     }
 
@@ -133,7 +154,7 @@
         document.getElementById('bac').style.color = col;
     }
 
-    setInterval(update, 1000); update();
+    setInterval(update, 2000); update();
 </script>
 </body>
 </html>
